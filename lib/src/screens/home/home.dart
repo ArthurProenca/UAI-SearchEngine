@@ -7,9 +7,12 @@ class SearchForm extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       title: "UAI?",
-      home: SearchFormQuery(),
+      home: const SearchFormQuery(),
+      routes: {
+        SearchResult.route: (context) => const SearchResult(),
+      },
     );
   }
 }
@@ -51,16 +54,17 @@ class _SearchFormQuery extends State<SearchFormQuery> {
                             focusColor: Colors.orange,
                             border: OutlineInputBorder(
                                 borderRadius:
-                                    BorderRadius.all(Radius.circular(10))),
-                            hintText: 'Cadê...'),
+                                    BorderRadius.all(Radius.circular(50))),
+                            hintText: 'Uai, cadê o trem lá...'),
                       ),
                       const SizedBox(height: 20),
                       ElevatedButton(
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
-                                  Colors.orange)),
+                                  const Color.fromARGB(255, 253, 201, 13))),
                           onPressed: () {
-                            Navigator.of(context).pushNamed(SearchResult.route);
+                            Navigator.of(context).pushNamed(SearchResult.route,
+                                arguments: controller.text);
                           },
                           child: const Text('Buscar'))
                     ]))));
