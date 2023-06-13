@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:uai/src/screens/search/result/result.dart';
 
 class SearchForm extends StatelessWidget {
+  static const String route = '/';
   const SearchForm({super.key});
 
   @override
@@ -57,23 +59,8 @@ class _SearchFormQuery extends State<SearchFormQuery> {
                           style: ButtonStyle(
                               backgroundColor: MaterialStateProperty.all<Color>(
                                   Colors.orange)),
-                          onLongPress: () => Navigator.pushNamed(context, '/'),
                           onPressed: () {
-                            // Navigator.pushNamed(context, '/search',
-                            //     arguments: controller.text);
-                            showDialog(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                      title: const Text('Busca'),
-                                      content: Text(controller.text),
-                                      actions: [
-                                        TextButton(
-                                            onPressed: () =>
-                                                Navigator.pop(context),
-                                            child: const Text('Fechar'))
-                                      ]);
-                                });
+                            Navigator.of(context).pushNamed(SearchResult.route);
                           },
                           child: const Text('Buscar'))
                     ]))));
