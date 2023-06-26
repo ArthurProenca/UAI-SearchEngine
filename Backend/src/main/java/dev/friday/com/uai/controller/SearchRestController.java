@@ -1,12 +1,13 @@
 package dev.friday.com.uai.controller;
 
-import dev.friday.com.uai.service.SearchRestService;
+import co.elastic.clients.elasticsearch.core.SearchResponse;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import dev.friday.com.uai.service.search.SearchRestService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 @CrossOrigin
 @RestController
@@ -15,7 +16,8 @@ public class SearchRestController {
 
     private final SearchRestService searchRestService;
 
-    public CompletableFuture<ResponseEntity<List<?>>> search(String query, Integer page) {
-        return null;
+    @GetMapping("/v1/search")
+    public Object search(@RequestParam String query, @RequestParam Integer page) {
+        return searchRestService.search(query, page);
     }
 }
