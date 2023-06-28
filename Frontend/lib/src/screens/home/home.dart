@@ -49,14 +49,15 @@ class _SearchFormQuery extends State<SearchFormQuery> {
                         child: Image.asset('assets/logo/logo.png'),
                       ),
                       TextField(
-                        controller: controller,
-                        decoration: const InputDecoration(
-                            focusColor: Colors.orange,
-                            border: OutlineInputBorder(
-                                borderRadius:
-                                    BorderRadius.all(Radius.circular(50))),
-                            hintText: 'Uai, cadê o trem lá...'),
-                      ),
+                          controller: controller,
+                          decoration: const InputDecoration(
+                              focusColor: Colors.orange,
+                              border: OutlineInputBorder(
+                                  borderRadius:
+                                      BorderRadius.all(Radius.circular(50))),
+                              hintText: 'Uai, cadê o trem lá...'),
+                          onSubmitted: (value) => Navigator.of(context)
+                              .pushNamed(SearchResult.route, arguments: value)),
                       const SizedBox(height: 20),
                       ElevatedButton(
                           style: ButtonStyle(
