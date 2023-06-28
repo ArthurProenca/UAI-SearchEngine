@@ -44,10 +44,13 @@ public class SearchRestService {
                 .stream()
                 .map(
                         h ->
-                                new Result()
-                                        .abs(treatContent(h.highlight().get("content").get(0)))
-                                        .title(h.source().get("title").asText())
-                                        .url(h.source().get("url").asText())
+                        {
+                            assert h.source() != null;
+                            return new Result()
+                                    .abs(treatContent(h.highlight().get("content").get(0)))
+                                    .title(h.source().get("title").asText())
+                                    .url(h.source().get("url").asText());
+                        }
                 ).collect(Collectors.toList());
     }
 
