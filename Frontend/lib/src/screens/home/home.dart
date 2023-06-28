@@ -8,7 +8,7 @@ class SearchForm extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: "UAI?",
+      title: "UAI",
       home: const SearchFormQuery(),
       routes: {
         SearchResult.route: (context) => const SearchResult(),
@@ -36,38 +36,47 @@ class _SearchFormQuery extends State<SearchFormQuery> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        body: Center(
-            child: SizedBox(
-                width: 300,
-                child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 200,
-                        height: 200,
-                        padding: const EdgeInsets.all(40),
-                        child: Image.asset('assets/logo/logo.png'),
+      body: Padding(
+        padding: const EdgeInsets.fromLTRB(0, 0, 0, 240),
+        child: Center(
+          child: SizedBox(
+            width: 300,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  width: 200,
+                  height: 200,
+                  padding: const EdgeInsets.all(40),
+                  child: Image.asset('assets/logo/logo.png'),
+                ),
+                TextField(
+                  controller: controller,
+                  decoration: const InputDecoration(
+                    contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
+                    suffixIcon: Icon(color: Colors.orange, Icons.search),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(90),
                       ),
-                      TextField(
-                          controller: controller,
-                          decoration: const InputDecoration(
-                              focusColor: Colors.orange,
-                              border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(50))),
-                              hintText: 'Uai, cadê o trem lá...'),
-                          onSubmitted: (value) => Navigator.of(context)
-                              .pushNamed(SearchResult.route, arguments: value)),
-                      const SizedBox(height: 20),
-                      ElevatedButton(
-                          style: ButtonStyle(
-                              backgroundColor: MaterialStateProperty.all<Color>(
-                                  const Color.fromARGB(255, 253, 201, 13))),
-                          onPressed: () {
-                            Navigator.of(context).pushNamed(SearchResult.route,
-                                arguments: controller.text);
-                          },
-                          child: const Text('Buscar'))
-                    ]))));
+                    ),
+                    hintText: 'Uai, cadê o trem lá...',
+                    hintStyle: TextStyle(color: Colors.black38),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.orange),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(90),
+                      ),
+                    ),
+                  ),
+                  onSubmitted: (value) => Navigator.of(context)
+                      .pushNamed(SearchResult.route, arguments: value),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
   }
 }
