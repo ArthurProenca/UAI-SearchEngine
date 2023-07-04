@@ -4,6 +4,7 @@ import 'package:uai/src/domain/result/search_result_dto_list.dart';
 import 'dart:convert';
 import 'dart:developer';
 import 'package:http/http.dart' as http;
+import 'package:uai/src/service/http_service.dart';
 import 'package:url_launcher/url_launcher_string.dart';
 
 class SearchResult extends StatelessWidget {
@@ -108,7 +109,6 @@ class _SearchResultPage extends State<SearchResultPage> {
                                       "",
                                   style: const TextStyle(
                                     color: Colors.blue,
-                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                                 subtitle: Text(
@@ -155,7 +155,7 @@ class _SearchResultPage extends State<SearchResultPage> {
                       controller: controller,
                       decoration: const InputDecoration(
                         focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Colors.black),
+                          borderSide: BorderSide(color: Colors.orange),
                           borderRadius: BorderRadius.all(
                             Radius.circular(90),
                           ),
@@ -163,7 +163,7 @@ class _SearchResultPage extends State<SearchResultPage> {
                         contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                         suffixIcon: Icon(
                           Icons.search,
-                          color: Colors.black,
+                          color: Colors.orange,
                         ),
                         hintText: "Uai sô, cadê!?",
                         border: OutlineInputBorder(
@@ -193,16 +193,14 @@ class _SearchResultPage extends State<SearchResultPage> {
         children: [
           Icon(icon),
           Text(text),
-          const Padding(padding: EdgeInsets.fromLTRB(25, 0, 25, 0)),
+          const Padding(padding: EdgeInsets.fromLTRB(25, 0, 20, 0)),
         ],
       ),
     );
   }
 
   Future<SearchResultDTOList> get(String query) async {
-    //final response = await http.get(
-    //  Uri.parse('http://localhost:9090/api/v1/search?query=$query&page=1'));
-
+    HttpService.get(Uri.parse("https://en.wikipedia.org/w/api.php"));
     const json = ''' 
     [
    {
