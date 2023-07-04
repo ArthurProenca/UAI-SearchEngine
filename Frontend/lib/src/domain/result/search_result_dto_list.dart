@@ -1,4 +1,4 @@
-import 'package:uai/src/domain/result/Search_Result_DTO.dart';
+import 'package:uai/src/domain/result/search_result_dto.dart';
 
 class SearchResultDTOList {
   final List<SearchResultDTO> searchResultDTOList;

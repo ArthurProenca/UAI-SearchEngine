@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:uai/src/domain/result/Search_Result_DTO.dart';
+import 'package:uai/src/domain/result/search_result_dto.dart';
 import 'package:uai/src/domain/result/search_result_dto_list.dart';
 import 'dart:convert';
 import 'dart:developer';
@@ -61,6 +61,33 @@ class _SearchResultPage extends State<SearchResultPage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
+            Container(
+              child: Column(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+                    width: 100,
+                    height: 50,
+                    child: Image.asset("assets/logo/cropped_logo.png"),
+                  ),
+                  Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.fromLTRB(30, 10, 5, 10),
+                    child: SingleChildScrollView(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          buildHotTopics("Geral", Icons.search_outlined),
+                          buildHotTopics("Wikipedia", Icons.school),
+                          buildHotTopics(
+                              "Outros recursos", Icons.pageview_outlined),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
             Expanded(
               child: FutureBuilder<SearchResultDTOList>(
                 future: resultDTO,
@@ -70,33 +97,30 @@ class _SearchResultPage extends State<SearchResultPage> {
                       itemCount: snapshot.data!.searchResultDTOList.length,
                       itemBuilder: (context, index) {
                         return Card(
+                          elevation: BorderSide.strokeAlignCenter,
                           clipBehavior: Clip.antiAlias,
                           child: Column(
                             children: [
                               ListTile(
-                                leading: const CircleAvatar(
-                                  child: Text('W'),
-                                ),
                                 title: Text(
                                   snapshot.data?.searchResultDTOList[index]
                                           .title ??
                                       "",
                                   style: const TextStyle(
-                                    color: Colors.black,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
                                   ),
                                 ),
                                 subtitle: Text(
                                   snapshot.data?.searchResultDTOList[index]
                                           .abs ??
                                       "",
-                                  style: TextStyle(
-                                    color: Colors.black.withOpacity(0.6),
-                                  ),
+                                  style: const TextStyle(
+                                      decoration: TextDecoration.none),
+                                  textAlign: TextAlign.left,
                                 ),
-
                                 hoverColor:
-                                    const Color.fromARGB(255, 253, 201, 13),
-                                //on click, go to data[index]["url"]
+                                    const Color.fromARGB(300, 253, 201, 13),
                                 onTap: () async {
                                   var url = snapshot
                                       .data?.searchResultDTOList[index].url;
@@ -120,29 +144,26 @@ class _SearchResultPage extends State<SearchResultPage> {
               ),
             ),
             Container(
-              color: Colors.grey[200],
+              color: Colors.grey[170],
               padding: const EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(10, 0, 10, 5),
-                    width: 50,
-                    height: 50,
-                    child: const Icon(
-                      Icons.send_rounded,
-                      color: Colors.orange,
-                    ),
-                  ),
                   SizedBox(
-                    width: 300,
+                    width: 370,
                     child: TextField(
                       controller: controller,
                       decoration: const InputDecoration(
+                        focusedBorder: OutlineInputBorder(
+                          borderSide: BorderSide(color: Colors.black),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(90),
+                          ),
+                        ),
                         contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
                         suffixIcon: Icon(
                           Icons.search,
-                          color: Colors.orange,
+                          color: Colors.black,
                         ),
                         hintText: "Uai sô, cadê!?",
                         border: OutlineInputBorder(
@@ -164,6 +185,18 @@ class _SearchResultPage extends State<SearchResultPage> {
         ),
       ),
     ));
+  }
+
+  Widget buildHotTopics(String text, IconData icon) {
+    return SizedBox(
+      child: Row(
+        children: [
+          Icon(icon),
+          Text(text),
+          const Padding(padding: EdgeInsets.fromLTRB(25, 0, 25, 0)),
+        ],
+      ),
+    );
   }
 
   Future<SearchResultDTOList> get(String query) async {
