@@ -14,6 +14,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'UAI - Cadê?',
         initialRoute: SearchForm.route,
+        debugShowCheckedModeBanner: false,
         routes: {
           SearchForm.route: (context) => const SearchForm(),
           SearchResult.route: (context) => const SearchResult(),
