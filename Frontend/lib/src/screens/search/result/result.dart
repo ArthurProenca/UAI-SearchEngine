@@ -36,10 +36,8 @@ class _SearchResultPage extends State<SearchResultPage> {
     super.initState();
     messages.add(
       SearchResultDTO("Usuário", widget.query, "", true),
-    ); // Adiciona a primeira mensagem recebida via parâmetro
-    // Simula as respostas do backend
-    // Aqui você pode substituir por chamadas reais para obter as respostas do backend
-    Future.delayed(const Duration(seconds: 1), () {
+    );
+    Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         HttpService.get(Uri.parse("https://en.wikipedia.org/w/api.php"))
             .then((value) {
@@ -49,29 +47,59 @@ class _SearchResultPage extends State<SearchResultPage> {
     });
   }
 
-  Widget _buildMessageItem(int index, Alignment alignment, Color color) {
-    final message = messages[index];
-
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 10.0),
-      alignment: alignment,
-      child: Container(
-        padding: const EdgeInsets.all(10.0),
-        decoration: BoxDecoration(
-          color: color,
-          borderRadius: BorderRadius.circular(5.0),
+  Widget _bullet(String title) {
+    return ElevatedButton.icon(
+      onPressed: () {},
+      icon: const Icon(Icons.link),
+      label: Text(title),
+      style: ButtonStyle(
+        backgroundColor:
+            MaterialStateProperty.all<Color>(Colors.orange.shade300),
+        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+        iconSize: MaterialStateProperty.all<double>(15),
+        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
         ),
-        child: DefaultTabController(
-          length: 2,
+        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+          RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18.0),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMessageItem(String message, Alignment alignment, Color color) {
+    return SizedBox(
+      width: 600,
+      child: Container(
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        alignment: alignment,
+        child: Container(
+          padding: const EdgeInsets.all(9.0),
+          decoration: BoxDecoration(
+            color: color,
+            borderRadius: BorderRadius.only(
+              bottomLeft: alignment == Alignment.topLeft
+                  ? const Radius.circular(0.0)
+                  : const Radius.circular(15.0),
+              bottomRight: alignment == Alignment.topLeft
+                  ? const Radius.circular(15.0)
+                  : const Radius.circular(0.0),
+              topRight: const Radius.circular(15.0),
+              topLeft: const Radius.circular(15.0),
+            ),
+            shape: BoxShape.rectangle,
+          ),
           child: Column(
             children: [
+              const SizedBox(height: 5.0),
               Text(
-                message.title,
-                style: const TextStyle(fontSize: 12.0, color: Colors.white),
-              ),
-              Text(
-                message.abs,
-                style: const TextStyle(fontSize: 12.0, color: Colors.white),
+                message,
+                style: const TextStyle(
+                  color: Colors.white,
+                ),
+                textAlign: TextAlign.start,
               ),
             ],
           ),
@@ -83,38 +111,80 @@ class _SearchResultPage extends State<SearchResultPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Chat'),
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView.builder(
-              itemCount: messages.length,
-              itemBuilder: (BuildContext context, int index) {
-                if (index == 0) {
-                  return _buildMessageItem(
-                      index, Alignment.topRight, Colors.blue);
-                }
-                return _buildMessageItem(index, Alignment.topLeft, Colors.grey);
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 10.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Digite sua mensagem...',
-                suffixIcon: IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: () {
-                    // Aqui você pode implementar o envio da mensagem para o backend
-                  },
+      body: Center(
+        child: SizedBox(
+          width: 600,
+          child: Column(
+            children: [
+              Container(
+                padding: const EdgeInsets.fromLTRB(0, 20, 0, 10),
+                width: 70,
+                height: 70,
+                child: Text("HEADER"),
+                alignment: Alignment.topLeft,
+              ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ListView.builder(
+                    itemCount: messages.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Column(
+                        children: [
+                          if (index == 0) ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
+                              child: _buildMessageItem(
+                                messages[index].abs,
+                                Alignment.topRight,
+                                Colors.orange.shade300,
+                              ),
+                            ),
+                          ] else ...[
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
+                              child: _buildMessageItem(
+                                messages[index].abs,
+                                Alignment.topLeft,
+                                Colors.grey.shade500,
+                              ),
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  child: _bullet("Wikipedia"),
+                                ),
+                                Container(
+                                  child: _bullet("SearchOnMath"),
+                                ),
+                              ],
+                            ),
+                          ]
+                        ],
+                      );
+                    },
+                  ),
                 ),
               ),
-            ),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: TextField(
+                  decoration: InputDecoration(
+                    hintText: 'Digite sua mensagem...',
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.send),
+                      onPressed: () {
+                        // Aqui você pode implementar o envio da mensagem para o backend
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
