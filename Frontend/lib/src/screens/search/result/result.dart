@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:uai/src/domain/result/search_result_dto.dart';
 import 'package:uai/src/service/http_service.dart';
+import 'package:uai/src/widgets/bullet/bullet.dart';
+import 'package:uai/src/widgets/message/message_item.dart';
+import 'package:uai/src/widgets/typing/typing.dart';
 
 class SearchResult extends StatelessWidget {
   static const String route = '/result';
@@ -37,6 +40,7 @@ class _SearchResultPage extends State<SearchResultPage> {
     messages.add(
       SearchResultDTO("Usuário", widget.query, "", true),
     );
+
     Future.delayed(const Duration(seconds: 2), () {
       setState(() {
         HttpService.get(Uri.parse("https://en.wikipedia.org/w/api.php"))
@@ -47,65 +51,37 @@ class _SearchResultPage extends State<SearchResultPage> {
     });
   }
 
-  Widget _bullet(String title) {
-    return ElevatedButton.icon(
-      onPressed: () {},
-      icon: const Icon(Icons.link),
-      label: Text(title),
-      style: ButtonStyle(
-        backgroundColor:
-            MaterialStateProperty.all<Color>(Colors.orange.shade300),
-        foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
-        iconSize: MaterialStateProperty.all<double>(15),
-        padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
-          const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-        ),
-        shape: MaterialStateProperty.all<RoundedRectangleBorder>(
-          RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18.0),
+  Widget buttonLogic(String title, List<SearchResultDTO> children) {
+    if (messages.length == 1) {
+      return Container();
+    } else {
+      return ElevatedButton.icon(
+        onPressed: () {
+          setState(() {
+            HttpService.get(Uri.parse("https://en.wikipedia.org/w/api.php"))
+                .then((value) {
+              children.addAll(value);
+            });
+          });
+        },
+        icon: const Icon(Icons.link),
+        label: Text(title),
+        style: ButtonStyle(
+          backgroundColor:
+              MaterialStateProperty.all<Color>(Colors.orange.shade300),
+          foregroundColor: MaterialStateProperty.all<Color>(Colors.white),
+          iconSize: MaterialStateProperty.all<double>(15),
+          padding: MaterialStateProperty.all<EdgeInsetsGeometry>(
+            const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
           ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildMessageItem(String message, Alignment alignment, Color color) {
-    return SizedBox(
-      width: 600,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 10.0),
-        alignment: alignment,
-        child: Container(
-          padding: const EdgeInsets.all(9.0),
-          decoration: BoxDecoration(
-            color: color,
-            borderRadius: BorderRadius.only(
-              bottomLeft: alignment == Alignment.topLeft
-                  ? const Radius.circular(0.0)
-                  : const Radius.circular(15.0),
-              bottomRight: alignment == Alignment.topLeft
-                  ? const Radius.circular(15.0)
-                  : const Radius.circular(0.0),
-              topRight: const Radius.circular(15.0),
-              topLeft: const Radius.circular(15.0),
+          shape: MaterialStateProperty.all<RoundedRectangleBorder>(
+            RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(18.0),
             ),
-            shape: BoxShape.rectangle,
-          ),
-          child: Column(
-            children: [
-              const SizedBox(height: 5.0),
-              Text(
-                message,
-                style: const TextStyle(
-                  color: Colors.white,
-                ),
-                textAlign: TextAlign.start,
-              ),
-            ],
           ),
         ),
-      ),
-    );
+      );
+    }
   }
 
   @override
@@ -121,7 +97,6 @@ class _SearchResultPage extends State<SearchResultPage> {
                 width: 70,
                 height: 70,
                 child: Text("HEADER"),
-                alignment: Alignment.topLeft,
               ),
               Expanded(
                 child: Padding(
@@ -134,33 +109,33 @@ class _SearchResultPage extends State<SearchResultPage> {
                           if (index == 0) ...[
                             Padding(
                               padding: const EdgeInsets.fromLTRB(30, 0, 0, 0),
-                              child: _buildMessageItem(
-                                messages[index].abs,
-                                Alignment.topRight,
-                                Colors.orange.shade300,
+                              child: MessageItem(
+                                messages[0].abs,
+                                true,
+                                List.empty(),
                               ),
                             ),
                           ] else ...[
                             Padding(
                               padding: const EdgeInsets.fromLTRB(0, 0, 30, 0),
-                              child: _buildMessageItem(
+                              child: MessageItem(
                                 messages[index].abs,
-                                Alignment.topLeft,
-                                Colors.grey.shade500,
+                                false,
+                                messages,
                               ),
                             ),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                Container(
-                                  padding: const EdgeInsets.all(5),
-                                  child: _bullet("Wikipedia"),
-                                ),
-                                Container(
-                                  child: _bullet("SearchOnMath"),
-                                ),
-                              ],
-                            ),
+                            if (index == messages.length - 1) ...[
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    child: buttonLogic("Wikipedia", messages),
+                                  ),
+                                  buttonLogic("SearchOnMath", messages),
+                                ],
+                              ),
+                            ],
                           ]
                         ],
                       );
@@ -172,14 +147,15 @@ class _SearchResultPage extends State<SearchResultPage> {
                 padding: const EdgeInsets.symmetric(horizontal: 10.0),
                 child: TextField(
                   decoration: InputDecoration(
+                    border: const OutlineInputBorder(),
                     hintText: 'Digite sua mensagem...',
                     suffixIcon: IconButton(
                       icon: const Icon(Icons.send),
-                      onPressed: () {
-                        // Aqui você pode implementar o envio da mensagem para o backend
-                      },
+                      onPressed: () {},
                     ),
                   ),
+                  onSubmitted: (value) => Navigator.of(context)
+                      .pushNamed(SearchResult.route, arguments: value),
                 ),
               ),
             ],

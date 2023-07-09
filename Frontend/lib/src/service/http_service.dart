@@ -13,6 +13,11 @@ class HttpService {
       "title":"Functional square root",
       "url":"https://en.wikipedia.org/wiki/Functional_square_root",
       "abs":"Functional <em>square</em> <em>root</em> In mathematics a functional <em>square</em> <em>root</em> sometimes called a half iterate is a <em>square</em> <em>root</em> of a function with respect to the operation of function composition In other words a functional <em>square</em> <em>root</em> of a function is a function satisfying for all "
+   },
+   {
+      "title":"Functional square root 2",
+      "url":"https://en.wikipedia.org/wiki/Functional_square_root",
+      "abs":"xxx Functional <em>square</em> <em>root</em> In mathematics a functional <em>square</em> <em>root</em> sometimes called a half iterate is a <em>square</em> <em>root</em> of a function with respect to the operation of function composition In other words a functional <em>square</em> <em>root</em> of a function is a function satisfying for all "
    }
 ]''';
 
