@@ -51,7 +51,7 @@ class _TypingAnimationWidgetState extends State<TypingAnimationWidget>
         final dots = '.' * _animation.value;
         return Text(
           '${widget.text}$dots',
-          style: TextStyle(fontSize: 24),
+          style: const TextStyle(fontSize: 24, color: Colors.white),
         );
       },
     );

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:uai/src/domain/result/search_result_dto.dart';
+import 'package:uai/src/screens/home/home.dart';
 import 'package:uai/src/service/http_service.dart';
-import 'package:uai/src/widgets/bullet/bullet.dart';
 import 'package:uai/src/widgets/message/message_item.dart';
 import 'package:uai/src/widgets/typing/typing.dart';
 
@@ -17,6 +17,7 @@ class SearchResult extends StatelessWidget {
       home: SearchResultPage(query),
       routes: {
         SearchResult.route: (context) => const SearchResult(),
+        SearchForm.route: (context) => const SearchForm(),
       },
     );
   }
@@ -107,10 +108,16 @@ class _SearchResultPage extends State<SearchResultPage> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Padding(
-                    padding: const EdgeInsets.fromLTRB(2, 5, 5, 5),
-                    child: Icon(
-                      Icons.arrow_back_ios_rounded,
-                      color: Colors.white.withOpacity(0.5),
+                    padding: const EdgeInsets.fromLTRB(8, 5, 5, 5),
+                    child: InkWell(
+                      onTap: () {
+                        Navigator.of(context)
+                            .pushNamed(SearchForm.route, arguments: "");
+                      },
+                      child: Icon(
+                        Icons.arrow_back_ios_rounded,
+                        color: Colors.white.withOpacity(0.5),
+                      ),
                     ),
                   ),
                   Padding(

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:uai/src/screens/search/result/result.dart';
 
 class SearchForm extends StatelessWidget {
-  static const String route = '/';
+  static const String route = '/home';
   const SearchForm({super.key});
 
   @override
