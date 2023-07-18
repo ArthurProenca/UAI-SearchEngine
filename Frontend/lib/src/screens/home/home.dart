@@ -36,6 +36,7 @@ class _SearchFormQuery extends State<SearchFormQuery> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff282c34),
       body: Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 240),
         child: Center(
@@ -52,18 +53,31 @@ class _SearchFormQuery extends State<SearchFormQuery> {
                 ),
                 TextField(
                   controller: controller,
+                  style: const TextStyle(
+                      color:
+                          Colors.grey), // Definindo a cor do texto para branco
                   decoration: const InputDecoration(
+                    focusColor: Colors.white,
                     contentPadding: EdgeInsets.fromLTRB(20, 10, 20, 10),
-                    suffixIcon: Icon(color: Colors.orange, Icons.search),
+                    suffixIcon: Icon(
+                        color: Color.fromARGB(188, 252, 201, 16), Icons.search),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(90),
                       ),
                     ),
                     hintText: 'Uai, cadê o trem lá...',
-                    hintStyle: TextStyle(color: Colors.black38),
+                    hintStyle: TextStyle(color: Colors.grey),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(188, 252, 201, 16)),
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(90),
+                      ),
+                    ),
                     focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: Colors.orange),
+                      borderSide:
+                          BorderSide(color: Color.fromARGB(188, 252, 201, 16)),
                       borderRadius: BorderRadius.all(
                         Radius.circular(90),
                       ),
