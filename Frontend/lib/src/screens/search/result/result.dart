@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:uai/src/domain/result/search_result_dto.dart';
 import 'package:uai/src/screens/home/home.dart';
-import 'package:uai/src/service/http_service.dart';
+import 'package:uai/src/service/http/http_service.dart';
 import 'package:uai/src/widgets/message/message_item.dart';
 import 'package:uai/src/widgets/typing/typing.dart';
+import 'package:url_launcher/url_launcher_string.dart';
 
 class SearchResult extends StatelessWidget {
   static const String route = '/result';
@@ -67,10 +68,12 @@ class _SearchResultPage extends State<SearchResultPage> {
             setState(() {
               HttpService.get(Uri.parse("https://web.whatsapp.com/"))
                   .then((value) {
-                List<SearchResultDTO> value = [];
-                children.add(SearchResultDTO("Usuário", title, "", true));
+                List<SearchResultDTO> x = [];
 
-                // children.addAll(value);
+                children.add(new SearchResultDTO(
+                    "Usuário", "https://web.whatsapp.com/", "", true));
+
+                //  children.addAll(value);
               });
             });
           },
@@ -159,10 +162,15 @@ class _SearchResultPage extends State<SearchResultPage> {
                                   Padding(
                                     padding:
                                         const EdgeInsets.fromLTRB(0, 0, 30, 0),
-                                    child: MessageItem(
-                                      messages[index].abs,
-                                      false,
-                                      messages,
+                                    child: InkWell(
+                                      onTap: () {
+                                        launchUrlString(messages[index].url);
+                                      },
+                                      child: MessageItem(
+                                        messages[index].abs,
+                                        false,
+                                        messages,
+                                      ),
                                     ),
                                   ),
                                   if (index == messages.length - 1) ...[

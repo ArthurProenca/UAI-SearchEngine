@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uai/src/domain/result/search_result_dto.dart';
-import 'package:uai/src/service/http_service.dart';
+import 'package:uai/src/service/http/http_service.dart';
 
 class BulletItem extends StatefulWidget {
   final String title;

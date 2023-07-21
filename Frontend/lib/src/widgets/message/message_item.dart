@@ -13,6 +13,39 @@ class MessageItem extends StatefulWidget {
   State<StatefulWidget> createState() => _MessageItem();
 }
 
+TextSpan _parseText(MessageItem messageItem) {
+  final message = messageItem.message;
+  final List<InlineSpan> children = [];
+
+  final List<String> parts = message.split(RegExp(r'<em>|<\/em>'));
+  bool isEmph = message.startsWith('<em>');
+
+  for (int i = 0; i < parts.length; i++) {
+    if (isEmph) {
+      children.add(TextSpan(
+        text: parts[i],
+        style: const TextStyle(
+          fontStyle: FontStyle.italic,
+          color: Color.fromARGB(188, 252, 201, 16),
+          fontFamily: 'Quicksand regular',
+        ),
+      ));
+    } else {
+      children.add(TextSpan(
+        text: parts[i],
+        style: TextStyle(
+          color: messageItem.isUser ? Colors.white : Colors.grey,
+          fontFamily: 'Quicksand regular',
+        ),
+      ));
+    }
+
+    isEmph = !isEmph;
+  }
+
+  return TextSpan(children: children);
+}
+
 class _MessageItem extends State<MessageItem> {
   @override
   Widget build(BuildContext context) {
@@ -66,12 +99,8 @@ class _MessageItem extends State<MessageItem> {
                 ),
                 child: Container(
                   padding: EdgeInsets.all(7),
-                  child: Text(
-                    widget.message,
-                    style: TextStyle(
-                      color: widget.isUser ? Colors.white : Colors.grey,
-                      fontFamily: 'Quicksand regular',
-                    ),
+                  child: RichText(
+                    text: _parseText(widget),
                     textAlign: TextAlign.start,
                   ),
                 ),

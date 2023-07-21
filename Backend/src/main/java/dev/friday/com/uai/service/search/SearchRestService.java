@@ -10,7 +10,11 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.elasticsearch.search.api.model.Result;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.friday.com.uai.client.es.EsClient;
+import dev.friday.com.uai.domain.search.SearchContentDTO;
+import dev.friday.com.uai.domain.search.SearchResultDTO;
+import dev.friday.com.uai.domain.search.som.SearchOnMathResultDTO;
 import dev.friday.com.uai.service.search.helper.SearchRestServiceHelper;
+import dev.friday.com.uai.service.search.som.SearchOnMathRestService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,21 +30,39 @@ public class SearchRestService {
 
     private final EsClient esClient;
 
-    public List<Result> search(String query, Integer page) {
+    private final SearchOnMathRestService searchOnMathRestService;
+
+    public SearchResultDTO search(String query, Integer page) {
         log.info("Query: {}", query);
 
         ElasticsearchClient elasticsearchClient = esClient.getConfiguredElasticSearchClient();
 
-        return searchPerform(elasticsearchClient, query);
+        List<Result> results = searchPerform(elasticsearchClient, query);
+
+        List<SearchContentDTO> searchContentDTOS = results
+                .stream()
+                .map(
+                        r -> new SearchContentDTO(r.getAbs(), r.getTitle(), r.getUrl())
+                ).toList();
+
+        SearchOnMathResultDTO searchOnMathResultDTO = searchOnMathRestService.search(query);
+
+        return SearchResultDTO.builder()
+                .wikipediaResults(searchContentDTOS)
+                .hasWikipedia(true)
+                .hasSearchOnMath(!searchOnMathResultDTO.getResult().isEmpty() &&
+                        searchOnMathResultDTO.getTotalResults() != 400)
+                .searchOnMathResults(searchOnMathResultDTO)
+                .build();
 
     }
 
     private List<Result> searchPerform(ElasticsearchClient elasticsearchClient, String query) {
-        SearchResponse<ObjectNode> searchResponse  = getSearchResponse(elasticsearchClient, query);
+        SearchResponse<ObjectNode> searchResponse = getSearchResponse(elasticsearchClient, query);
 
         List<Hit<ObjectNode>> hits = searchResponse.hits().hits();
 
-        return  hits
+        return hits
                 .stream()
                 .map(
                         h ->
