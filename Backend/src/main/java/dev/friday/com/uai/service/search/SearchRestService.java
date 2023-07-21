@@ -15,6 +15,7 @@ import dev.friday.com.uai.domain.search.SearchResultDTO;
 import dev.friday.com.uai.domain.search.som.SearchOnMathResultDTO;
 import dev.friday.com.uai.service.search.helper.SearchRestServiceHelper;
 import dev.friday.com.uai.service.search.som.SearchOnMathRestService;
+import dev.friday.com.uai.utils.PaginatedResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,14 +46,23 @@ public class SearchRestService {
                         r -> new SearchContentDTO(r.getAbs(), r.getTitle(), r.getUrl())
                 ).toList();
 
+        PaginatedResult<SearchContentDTO> paginatedResult = new PaginatedResult<>(
+                SearchRestServiceHelper.getPageItems(searchContentDTOS, page), page, searchContentDTOS.size());
+
+        if (paginatedResult.getCurrentPage() > paginatedResult.getTotalPages()) {
+            throw new RuntimeException("Page not found");
+        }
+
         SearchOnMathResultDTO searchOnMathResultDTO = searchOnMathRestService.search(query);
 
+        boolean hasSearchOnMathResults = !searchOnMathResultDTO.getResult().isEmpty() &&
+                searchOnMathResultDTO.getTotalResults() != 400;
+
         return SearchResultDTO.builder()
-                .wikipediaResults(searchContentDTOS)
+                .wikipediaResults(paginatedResult)
                 .hasWikipedia(true)
-                .hasSearchOnMath(!searchOnMathResultDTO.getResult().isEmpty() &&
-                        searchOnMathResultDTO.getTotalResults() != 400)
-                .searchOnMathResults(searchOnMathResultDTO)
+                .hasSearchOnMath(hasSearchOnMathResults)
+                .searchOnMathResults(hasSearchOnMathResults ? searchOnMathResultDTO : null)
                 .build();
 
     }
