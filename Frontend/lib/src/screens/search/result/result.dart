@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:uai/src/domain/messages/messages.dart';
 import 'package:uai/src/domain/result/search_result_dto.dart';
 import 'package:uai/src/screens/home/home.dart';
 import 'package:uai/src/service/http/http_service.dart';
@@ -37,13 +38,13 @@ class _SearchResultPage extends State<SearchResultPage> {
   bool isLoading = true;
 
   String query = "";
-  List<SearchResultDTO> messages = [];
+  List<Messages> messages = [];
 
   @override
   void initState() {
     super.initState();
     messages.add(
-      SearchResultDTO("Usuário", widget.query, "", true),
+      Messages(widget.query, widget.query, true, 1, 1, true, true),
     );
 
     Future.delayed(const Duration(seconds: 2), () {
@@ -51,13 +52,47 @@ class _SearchResultPage extends State<SearchResultPage> {
         HttpService.get(Uri.parse("https://en.wikipedia.org/w/api.php"))
             .then((value) {
           isLoading = false;
-          messages.addAll(value);
+
+          if (value.hasWikipedia) {
+            for (var i = 0; i < value.wikipediaResults.length; i++) {
+              messages.add(
+                Messages(
+                    value.wikipediaResults[i].title,
+                    value.wikipediaResults[i].uri,
+                    false,
+                    value.currentPage,
+                    value.totalPages,
+                    value.hasSearchOnMath,
+                    value.hasWikipedia),
+              );
+            }
+          }
+
+          if (value.hasSearchOnMath) {
+            for (var i = 0; i < value.searchOnMathResults.length; i++) {
+              messages.add(
+                Messages(
+                    value.searchOnMathResults[i].title,
+                    value.searchOnMathResults[i].uri,
+                    false,
+                    value.currentPage,
+                    value.totalPages,
+                    value.hasSearchOnMath,
+                    value.hasWikipedia),
+              );
+            }
+          }
         });
       });
     });
   }
 
-  Widget buttonLogic(String title, List<SearchResultDTO> children) {
+  Widget buttonLogic(String title, List<Messages> children) {
+    if (title == "SearchOnMath" &&
+        !children[children.length - 1].hasSearchOnMath) {
+      return Container();
+    }
+
     if (messages.length == 1) {
       return Container();
     } else {
@@ -68,12 +103,35 @@ class _SearchResultPage extends State<SearchResultPage> {
             setState(() {
               HttpService.get(Uri.parse("https://web.whatsapp.com/"))
                   .then((value) {
-                List<SearchResultDTO> x = [];
+                if (title == "Wikipedia") {
+                  for (var i = 0; i < value.wikipediaResults.length; i++) {
+                    messages.add(
+                      Messages(
+                          value.wikipediaResults[i].title,
+                          value.wikipediaResults[i].uri,
+                          false,
+                          value.currentPage,
+                          value.totalPages,
+                          value.hasSearchOnMath,
+                          value.hasWikipedia),
+                    );
+                  }
+                }
 
-                children.add(new SearchResultDTO(
-                    "Usuário", "https://web.whatsapp.com/", "", true));
-
-                //  children.addAll(value);
+                if (title == "SearchOnMath") {
+                  for (var i = 0; i < value.searchOnMathResults.length; i++) {
+                    messages.add(
+                      Messages(
+                          value.searchOnMathResults[i].title,
+                          value.searchOnMathResults[i].uri,
+                          false,
+                          value.currentPage,
+                          value.totalPages,
+                          value.hasSearchOnMath,
+                          value.hasWikipedia),
+                    );
+                  }
+                }
               });
             });
           },
@@ -153,7 +211,7 @@ class _SearchResultPage extends State<SearchResultPage> {
                                     padding:
                                         const EdgeInsets.fromLTRB(30, 0, 0, 0),
                                     child: MessageItem(
-                                      messages[0].abs,
+                                      messages[0].message,
                                       true,
                                       List.empty(),
                                     ),
@@ -164,29 +222,34 @@ class _SearchResultPage extends State<SearchResultPage> {
                                         const EdgeInsets.fromLTRB(0, 0, 30, 0),
                                     child: InkWell(
                                       onTap: () {
-                                        launchUrlString(messages[index].url);
+                                        launchUrlString(messages[index].uri);
                                       },
                                       child: MessageItem(
-                                        messages[index].abs,
+                                        messages[index].message,
                                         false,
                                         messages,
                                       ),
                                     ),
                                   ),
                                   if (index == messages.length - 1) ...[
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          padding: const EdgeInsets.fromLTRB(
-                                              27, 0, 10, 0),
-                                          child: buttonLogic(
-                                              "Wikipedia", messages),
-                                        ),
-                                        buttonLogic("SearchOnMath", messages),
-                                      ],
-                                    ),
+                                    if (messages[messages.length - 1]
+                                            .currentPage <
+                                        messages[messages.length - 1]
+                                            .totalPages) ...[
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.fromLTRB(
+                                                27, 0, 10, 0),
+                                            child: buttonLogic(
+                                                "Mais sobre", messages),
+                                          ),
+                                          buttonLogic("SearchOnMath", messages),
+                                        ],
+                                      ),
+                                    ]
                                   ],
                                 ]
                               ],

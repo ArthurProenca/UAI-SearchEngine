@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:uai/src/domain/result/search_result_dto.dart';
+import 'package:uai/src/domain/messages/messages.dart';
 
 class MessageItem extends StatefulWidget {
   final String message;
   final bool isUser;
-  final List<SearchResultDTO> children;
+  final List<Messages> children;
 
   const MessageItem(this.message, this.isUser, this.children, {Key? key})
       : super(key: key);
