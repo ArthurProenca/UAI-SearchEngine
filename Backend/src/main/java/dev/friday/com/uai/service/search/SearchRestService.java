@@ -21,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -52,17 +53,25 @@ public class SearchRestService {
         if (paginatedResult.getCurrentPage() > paginatedResult.getTotalPages()) {
             throw new RuntimeException("Page not found");
         }
+        SearchOnMathResultDTO searchOnMathResultDTO;
+        try {
+            searchOnMathResultDTO = searchOnMathRestService.search(query);
+        } catch (Exception e) {
+            log.error("Error on search on math", e);
+            searchOnMathResultDTO = SearchOnMathResultDTO.builder().result(new ArrayList<>()).totalResults(400L).build();
+        }
 
-        SearchOnMathResultDTO searchOnMathResultDTO = searchOnMathRestService.search(query);
 
         boolean hasSearchOnMathResults = !searchOnMathResultDTO.getResult().isEmpty() &&
                 searchOnMathResultDTO.getTotalResults() != 400;
 
         return SearchResultDTO.builder()
-                .wikipediaResults(paginatedResult)
+                .wikipediaResults(paginatedResult.getItems())
                 .hasWikipedia(true)
                 .hasSearchOnMath(hasSearchOnMathResults)
-                .searchOnMathResults(hasSearchOnMathResults ? searchOnMathResultDTO : null)
+                .searchOnMathResults(hasSearchOnMathResults ? searchOnMathResultDTO.getResult() : new ArrayList<>())
+                .totalResults(paginatedResult.getTotalPages())
+                .currentPage(paginatedResult.getCurrentPage())
                 .build();
 
     }

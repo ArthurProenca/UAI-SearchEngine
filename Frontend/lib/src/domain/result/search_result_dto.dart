@@ -18,7 +18,6 @@ class SearchResultDTO {
       this.totalPages);
 
   factory SearchResultDTO.fromJson(Map<String, dynamic> json) {
-    debugPrint(json['searchOnMathResults'].toString());
     if (json['wikipediaResults'] == null ||
         json['searchOnMathResults'] == null ||
         json['wikipediaResults'] == [] ||
@@ -35,7 +34,8 @@ class SearchResultDTO {
         .map((e) => SearchResultItensDTO.fromJson(e))
         .toList();
     final int currentPage = json['currentPage'];
-    final int totalPages = json['totalPages'];
+    final int totalPages = json['totalResults'];
+    debugPrint(wikipediaResultsList.first.uri);
     return SearchResultDTO(wikipediaResultsList, searchOnMathResultsList,
         json['hasSearchOnMath'], json['hasWikipedia'], currentPage, totalPages);
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:uai/src/domain/messages/messages.dart';
-import 'package:uai/src/domain/result/search_result_dto.dart';
 import 'package:uai/src/screens/home/home.dart';
 import 'package:uai/src/service/http/http_service.dart';
 import 'package:uai/src/widgets/message/message_item.dart';
@@ -46,44 +45,45 @@ class _SearchResultPage extends State<SearchResultPage> {
     messages.add(
       Messages(widget.query, widget.query, true, 1, 1, true, true),
     );
+    fetchSearchResults();
+  }
 
-    Future.delayed(const Duration(seconds: 2), () {
-      setState(() {
-        HttpService.get(Uri.parse("https://en.wikipedia.org/w/api.php"))
-            .then((value) {
-          isLoading = false;
+  // New async function to fetch the search results
+  Future<void> fetchSearchResults() async {
+    var value = await HttpService.get(Uri.parse(
+        "http://localhost:9090/api/v1/search?query=${widget.query}&page=1"));
 
-          if (value.hasWikipedia) {
-            for (var i = 0; i < value.wikipediaResults.length; i++) {
-              messages.add(
-                Messages(
-                    value.wikipediaResults[i].title,
-                    value.wikipediaResults[i].uri,
-                    false,
-                    value.currentPage,
-                    value.totalPages,
-                    value.hasSearchOnMath,
-                    value.hasWikipedia),
-              );
-            }
-          }
+    setState(() {
+      isLoading = false;
+      if (value.hasWikipedia) {
+        for (var i = 0; i < value.wikipediaResults.length; i++) {
+          messages.add(
+            Messages(
+                value.wikipediaResults[i].title,
+                value.wikipediaResults[i].uri,
+                false,
+                value.currentPage,
+                value.totalPages,
+                value.hasSearchOnMath,
+                value.hasWikipedia),
+          );
+        }
+      }
 
-          if (value.hasSearchOnMath) {
-            for (var i = 0; i < value.searchOnMathResults.length; i++) {
-              messages.add(
-                Messages(
-                    value.searchOnMathResults[i].title,
-                    value.searchOnMathResults[i].uri,
-                    false,
-                    value.currentPage,
-                    value.totalPages,
-                    value.hasSearchOnMath,
-                    value.hasWikipedia),
-              );
-            }
-          }
-        });
-      });
+      if (value.hasSearchOnMath) {
+        for (var i = 0; i < value.searchOnMathResults.length; i++) {
+          messages.add(
+            Messages(
+                value.searchOnMathResults[i].title,
+                value.searchOnMathResults[i].uri,
+                false,
+                value.currentPage,
+                value.totalPages,
+                value.hasSearchOnMath,
+                value.hasWikipedia),
+          );
+        }
+      }
     });
   }
 
@@ -101,11 +101,13 @@ class _SearchResultPage extends State<SearchResultPage> {
         child: ElevatedButton.icon(
           onPressed: () {
             setState(() {
-              HttpService.get(Uri.parse("https://web.whatsapp.com/"))
+              int currentPage = messages[messages.length - 1].currentPage + 1;
+              HttpService.get(Uri.parse(
+                      "http://localhost:9090/api/v1/search?query=${widget.query}&page=$currentPage"))
                   .then((value) {
-                if (title == "Wikipedia") {
+                if (title == "Mais sobre") {
                   for (var i = 0; i < value.wikipediaResults.length; i++) {
-                    messages.add(
+                    children.add(
                       Messages(
                           value.wikipediaResults[i].title,
                           value.wikipediaResults[i].uri,
@@ -120,7 +122,7 @@ class _SearchResultPage extends State<SearchResultPage> {
 
                 if (title == "SearchOnMath") {
                   for (var i = 0; i < value.searchOnMathResults.length; i++) {
-                    messages.add(
+                    children.add(
                       Messages(
                           value.searchOnMathResults[i].title,
                           value.searchOnMathResults[i].uri,
@@ -222,6 +224,7 @@ class _SearchResultPage extends State<SearchResultPage> {
                                         const EdgeInsets.fromLTRB(0, 0, 30, 0),
                                     child: InkWell(
                                       onTap: () {
+                                        debugPrint(messages[index].uri);
                                         launchUrlString(messages[index].uri);
                                       },
                                       child: MessageItem(

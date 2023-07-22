@@ -9,7 +9,8 @@ import lombok.Data;
 @AllArgsConstructor
 public class SearchContentDTO {
     private String title;
-    private String url;
     private String abs;
+
+    private String url;
 
 }
