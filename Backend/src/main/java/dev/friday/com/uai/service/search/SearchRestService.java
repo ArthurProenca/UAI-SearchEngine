@@ -10,12 +10,18 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import com.elasticsearch.search.api.model.Result;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import dev.friday.com.uai.client.es.EsClient;
+import dev.friday.com.uai.domain.search.SearchContentDTO;
+import dev.friday.com.uai.domain.search.SearchResultDTO;
+import dev.friday.com.uai.domain.search.som.SearchOnMathResultDTO;
 import dev.friday.com.uai.service.search.helper.SearchRestServiceHelper;
+import dev.friday.com.uai.service.search.som.SearchOnMathRestService;
+import dev.friday.com.uai.utils.PaginatedResult;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,21 +32,56 @@ public class SearchRestService {
 
     private final EsClient esClient;
 
-    public List<Result> search(String query, Integer page) {
+    private final SearchOnMathRestService searchOnMathRestService;
+
+    public SearchResultDTO search(String query, Integer page) {
         log.info("Query: {}", query);
 
         ElasticsearchClient elasticsearchClient = esClient.getConfiguredElasticSearchClient();
 
-        return searchPerform(elasticsearchClient, query);
+        List<Result> results = searchPerform(elasticsearchClient, query);
+
+        List<SearchContentDTO> searchContentDTOS = results
+                .stream()
+                .map(
+                        r -> new SearchContentDTO(r.getAbs(), r.getTitle(), r.getUrl())
+                ).toList();
+
+        PaginatedResult<SearchContentDTO> paginatedResult = new PaginatedResult<>(
+                SearchRestServiceHelper.getPageItems(searchContentDTOS, page), page, searchContentDTOS.size());
+
+        if (paginatedResult.getCurrentPage() > paginatedResult.getTotalPages()) {
+            throw new RuntimeException("Page not found");
+        }
+        SearchOnMathResultDTO searchOnMathResultDTO;
+        try {
+            searchOnMathResultDTO = searchOnMathRestService.search(query);
+        } catch (Exception e) {
+            log.error("Error on search on math", e);
+            searchOnMathResultDTO = SearchOnMathResultDTO.builder().result(new ArrayList<>()).totalResults(400L).build();
+        }
+
+
+        boolean hasSearchOnMathResults = !searchOnMathResultDTO.getResult().isEmpty() &&
+                searchOnMathResultDTO.getTotalResults() != 400;
+
+        return SearchResultDTO.builder()
+                .wikipediaResults(paginatedResult.getItems())
+                .hasWikipedia(true)
+                .hasSearchOnMath(hasSearchOnMathResults)
+                .searchOnMathResults(hasSearchOnMathResults ? searchOnMathResultDTO.getResult() : new ArrayList<>())
+                .totalResults(paginatedResult.getTotalPages())
+                .currentPage(paginatedResult.getCurrentPage())
+                .build();
 
     }
 
     private List<Result> searchPerform(ElasticsearchClient elasticsearchClient, String query) {
-        SearchResponse<ObjectNode> searchResponse  = getSearchResponse(elasticsearchClient, query);
+        SearchResponse<ObjectNode> searchResponse = getSearchResponse(elasticsearchClient, query);
 
         List<Hit<ObjectNode>> hits = searchResponse.hits().hits();
 
-        return  hits
+        return hits
                 .stream()
                 .map(
                         h ->

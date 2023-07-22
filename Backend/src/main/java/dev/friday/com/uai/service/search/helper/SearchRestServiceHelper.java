@@ -6,6 +6,7 @@ import co.elastic.clients.elasticsearch.core.search.HighlighterType;
 import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Component
@@ -27,5 +28,12 @@ public class SearchRestServiceHelper {
         );
 
         return map;
+    }
+
+    // Método utilitário para obter os itens da página atual
+    public static <T> List<T> getPageItems(List<T> allItems, int currentPage) {
+        int startIndex = (currentPage - 1) * 5;
+        int endIndex = Math.min(startIndex + 5, allItems.size());
+        return allItems.subList(startIndex, endIndex);
     }
 }
