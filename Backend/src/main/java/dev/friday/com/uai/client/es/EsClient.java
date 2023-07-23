@@ -47,7 +47,7 @@ public class EsClient {
     private RestClient getConfiguredRestClient() {
         SSLFactory sslFactory = getConfiguredSSL();
 
-        return RestClient.builder(new HttpHost(host, port, protocol))
+        return RestClient.builder(new HttpHost("my-deployment-9eeb99.es.southamerica-east1.gcp.elastic-cloud.com", 443, "https"))
                 .setHttpClientConfigCallback((HttpAsyncClientBuilder httpClientBuilder) -> httpClientBuilder
                         .setDefaultCredentialsProvider(getConfiguredCredentialProvider())
                         .setSSLContext(sslFactory.getSslContext())
