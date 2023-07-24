@@ -2,6 +2,7 @@ package dev.friday.com.uai.service.search;
 
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -22,7 +23,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -98,18 +101,68 @@ public class SearchRestService {
     private SearchResponse<ObjectNode> getSearchResponse(ElasticsearchClient elasticsearchClient, String query) {
         Highlight highlight = SearchRestServiceHelper.getHighlight();
 
-        Query matchQuery = MatchQuery.of(
+        Map<String, String> queryModifiers = getModifierQueryFromQuery(query);
+
+        List<Query> mustQueries = new ArrayList<>();
+        List<Query> shouldQueries = new ArrayList<>();
+
+        mustQueries.add(MatchQuery.of(
                         q -> q.field("content").query(query))
-                ._toQuery();
+                ._toQuery());
+
+
+        for (String modifier : queryModifiers.keySet()) {
+            switch (modifier) {
+                case "must" -> mustQueries.add(MatchQuery.of(
+                                q -> q.field("content").query(queryModifiers.get(modifier)))
+                        ._toQuery());
+                case "should" -> shouldQueries.add(MatchQuery.of(
+                                q -> q.field("content").query(queryModifiers.get(modifier)))
+                        ._toQuery());
+            }
+        }
+
+        Query boolQuery = BoolQuery.of(b -> {
+            if (!mustQueries.isEmpty()) {
+                b.must(mustQueries);
+            }
+            if (!shouldQueries.isEmpty()) {
+                b.should(shouldQueries);
+            }
+            b.minimumShouldMatch("1");
+            return b;
+        })._toQuery();
 
         try {
             return elasticsearchClient.search(s -> s
-                    .index("wikipedia")
-                    .query(matchQuery).highlight(highlight), ObjectNode.class
+                            .index("wikipedia")
+                            .query(boolQuery)
+                            .highlight(highlight),
+                    ObjectNode.class
             );
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+
+    private Map<String, String> getModifierQueryFromQuery(String query) {
+        String[] parts = query.split("\\s*--\\s*");
+
+        Map<String, String> modifiers = new HashMap<>();
+
+        modifiers.put("query", parts[0]);
+
+        for (String part : parts) {
+            if (part.contains("must")) {
+                modifiers.put("must", part.split("\\s+")[1]);
+            }
+            if (part.contains("should")) {
+                modifiers.put("should", part.split("\\s+")[1]);
+            }
+        }
+
+        return modifiers;
     }
 
     private static String treatContent(String content) {
