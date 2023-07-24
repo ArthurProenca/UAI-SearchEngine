@@ -35,7 +35,7 @@ class SearchResultDTO {
         .toList();
     final int currentPage = json['currentPage'];
     final int totalPages = json['totalResults'];
-    debugPrint(wikipediaResultsList.first.uri);
+    (wikipediaResultsList.first.uri);
     return SearchResultDTO(wikipediaResultsList, searchOnMathResultsList,
         json['hasSearchOnMath'], json['hasWikipedia'], currentPage, totalPages);
   }

@@ -50,8 +50,26 @@ class _SearchResultPage extends State<SearchResultPage> {
 
   // New async function to fetch the search results
   Future<void> fetchSearchResults() async {
-    var value = await HttpService.get(Uri.parse(
-        "http://localhost:9090/api/v1/search?query=${widget.query}&page=1"));
+    var value;
+    try {
+      value = await HttpService.get(Uri.parse(
+          "https://uai-searchengine-production.up.railway.app/api/v1/search?query=${widget.query}&page=1"));
+    } catch (e) {
+      setState(() {
+        isLoading = false;
+
+        messages.add(Messages(
+            "Não foi possível encontrar resultados para: ${widget.query}",
+            "",
+            true,
+            1,
+            1,
+            true,
+            true));
+      });
+
+      return;
+    }
 
     setState(() {
       isLoading = false;
@@ -100,22 +118,23 @@ class _SearchResultPage extends State<SearchResultPage> {
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         child: ElevatedButton.icon(
           onPressed: () {
-            setState(() {
-              int currentPage = messages[messages.length - 1].currentPage + 1;
-              HttpService.get(Uri.parse(
-                      "http://localhost:9090/api/v1/search?query=${widget.query}&page=$currentPage"))
-                  .then((value) {
+            int currentPage = messages[messages.length - 1].currentPage + 1;
+            HttpService.get(Uri.parse(
+                    "https://uai-searchengine-production.up.railway.app/api/v1/search?query=${widget.query}&page=$currentPage"))
+                .then((value) {
+              setState(() {
                 if (title == "Mais sobre") {
                   for (var i = 0; i < value.wikipediaResults.length; i++) {
                     children.add(
                       Messages(
-                          value.wikipediaResults[i].title,
-                          value.wikipediaResults[i].uri,
-                          false,
-                          value.currentPage,
-                          value.totalPages,
-                          value.hasSearchOnMath,
-                          value.hasWikipedia),
+                        value.wikipediaResults[i].title,
+                        value.wikipediaResults[i].uri,
+                        false,
+                        value.currentPage,
+                        value.totalPages,
+                        value.hasSearchOnMath,
+                        value.hasWikipedia,
+                      ),
                     );
                   }
                 }
@@ -124,13 +143,14 @@ class _SearchResultPage extends State<SearchResultPage> {
                   for (var i = 0; i < value.searchOnMathResults.length; i++) {
                     children.add(
                       Messages(
-                          value.searchOnMathResults[i].title,
-                          value.searchOnMathResults[i].uri,
-                          false,
-                          value.currentPage,
-                          value.totalPages,
-                          value.hasSearchOnMath,
-                          value.hasWikipedia),
+                        value.searchOnMathResults[i].title,
+                        value.searchOnMathResults[i].uri,
+                        false,
+                        value.currentPage,
+                        value.totalPages,
+                        value.hasSearchOnMath,
+                        value.hasWikipedia,
+                      ),
                     );
                   }
                 }
@@ -224,7 +244,7 @@ class _SearchResultPage extends State<SearchResultPage> {
                                         const EdgeInsets.fromLTRB(0, 0, 30, 0),
                                     child: InkWell(
                                       onTap: () {
-                                        debugPrint(messages[index].uri);
+                                        (messages[index].uri);
                                         launchUrlString(messages[index].uri);
                                       },
                                       child: MessageItem(
