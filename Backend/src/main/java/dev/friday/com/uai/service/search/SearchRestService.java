@@ -3,6 +3,7 @@ package dev.friday.com.uai.service.search;
 
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch._types.query_dsl.BoolQuery;
+import co.elastic.clients.elasticsearch._types.query_dsl.MatchPhraseQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.MatchQuery;
 import co.elastic.clients.elasticsearch._types.query_dsl.Query;
 import co.elastic.clients.elasticsearch.core.SearchResponse;
@@ -116,7 +117,7 @@ public class SearchRestService {
                 case "must" -> mustQueries.add(MatchQuery.of(
                                 q -> q.field("content").query(queryModifiers.get(modifier)))
                         ._toQuery());
-                case "should" -> shouldQueries.add(MatchQuery.of(
+                case "should" -> shouldQueries.add(MatchPhraseQuery.of(
                                 q -> q.field("content").query(queryModifiers.get(modifier)))
                         ._toQuery());
             }
@@ -129,7 +130,9 @@ public class SearchRestService {
             if (!shouldQueries.isEmpty()) {
                 b.should(shouldQueries);
             }
-            b.minimumShouldMatch("1");
+            if (!shouldQueries.isEmpty()) {
+                b.minimumShouldMatch("1");
+            }
             return b;
         })._toQuery();
 
